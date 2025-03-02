@@ -165,3 +165,48 @@ Algorithm to Calculate Final Comment Score:
 - The export can be used directly in the `insomnia` to run the api smoothly.
 
 
+Here’s a quick description you can add to your Laravel project’s GitHub repo:  
+
+---
+
+## How to Set Up and Run This Laravel Project 🚀
+
+1. **Clone the repository:**  
+   ```bash
+   git clone https://github.com/jmj4you/yutube-comment-api.git
+   cd yutube-comment-api
+   ```
+
+2. **Install dependencies:**  
+   ```bash
+   composer install   
+   ```
+
+3. **Set environment variables:**  
+   Copy the `.env.example` file and rename it to `.env`:  
+   ```bash
+   cp .env.example .env
+   ```
+
+   Then, generate an app key:  
+   ```bash
+   php artisan key:generate
+   ```
+
+4. **Set up the database:**  
+   Update your `.env` file with your database credentials, then run:  
+   ```bash
+   php artisan migrate --seed
+   ```
+
+5. **Run the development server:**  
+   ```bash
+   php artisan serve
+   ```
+
+7. **Access the app:**  
+   Open your browser and go to `http://localhost:8000`.  
+
+---
+
+

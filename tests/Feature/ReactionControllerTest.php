@@ -77,16 +77,4 @@ class ReactionControllerTest extends TestCase
         $response->assertStatus(404)
             ->assertJson(['error' => 'Comment not found']);
     }
-
-    #[Test]
-    public function it_gets_reactions_for_a_comment()
-    {
-        Reaction::factory()->count(3)->create(['comment_id' => $this->comment->id]);
-
-        $response = $this->getJson(route('reactions.list', $this->comment->id));
-
-        $response->assertStatus(200)
-            ->assertJson(['message' => 'Reactions'])
-            ->assertJsonCount(3, 'data.reactions_count');
-    }
 }

@@ -53,25 +53,63 @@ class ReplyController extends Controller
     }
 
 
-     /**
-      * Get a list of replies for a comment.
-      *
-      * @param int $videoId
-      * @return \Illuminate\Http\JsonResponse
-      */
-      public function replies($commentId, Request $request)
-      {
-          try {
-              $record = Comment::with(["replies.receiver", 'replies.reactionsCount'])->find($commentId) ?? abort(response()->json(["error" => "Comment not found"], 404));
-              return response()->json([
-                  "message" => "Comment and replies",
-                  "data" => $record,
-              ], 200);
-          } catch (\Exception $e) {
+    /**
+     * Get a list of replies for a comment.
+     *
+     * @param int $videoId
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function replies($commentId, Request $request)
+    {
+        $record = Comment::with(['receiver', 'reactionsCount'])->find($commentId) ?? abort(response()->json(["error" => "Comment not found"], 404));
+        try {
+            $replies = $record->replies()
+                ->with(['receiver', 'reactionsCount'])
+                ->latest()
+                ->paginate(10);
+
+            return response()->json([
+                "message" => "Comment and replies",
+                "comment" => $record,
+                "replies" => $replies->items(),
+                "total_replies" => $replies->total(),
+                "current_page" => $replies->currentPage(),
+                "last_page" => $replies->lastPage(),
+                "per_page" => $replies->perPage(),
+                "next_page_url" => $replies->nextPageUrl(),
+                "prev_page_url" => $replies->previousPageUrl()
+            ], 200);
+        } catch (\Exception $e) {
             Log::error($e);
-              return response()->json(["error" => "Failed to find comments"], 500);
-          }
-      }
+            return response()->json(["error" => "Failed to find comments"], 500);
+        }
+    }
 
 
+    /**
+     * Get a list of replies for a comment.
+     *
+     * @param int $videoId
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function topReplies($commentId, Request $request)
+    {
+        Comment::find($commentId) ?? abort(response()->json(["error" => "Comment not found"], 404));
+        try {
+            $trendingReplies = Comment::trendingReplies($commentId);
+            return response()->json([
+                "message" => "Top replies",
+                'data' => $trendingReplies->items(),
+                'total' => $trendingReplies->total(),
+                'current_page' => $trendingReplies->currentPage(),
+                'last_page' => $trendingReplies->lastPage(),
+                'per_page' => $trendingReplies->perPage(),
+                'next_page_url' => $trendingReplies->nextPageUrl(),
+                'prev_page_url' => $trendingReplies->previousPageUrl()
+            ]);
+        } catch (\Exception $e) {
+            Log::error($e);
+            return response()->json(["error" => "Failed to find comments"], 500);
+        }
+    }
 }

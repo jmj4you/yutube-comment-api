@@ -12,6 +12,7 @@ The project includes:
 
 This API is designed to run locally and does not authentication. The architecture ensures scalability and maintainability, ready to handle growing data and evolving requirements.
 
+- Update: The solution includes indexes to optimize query performance and pagination to handle large datasets efficiently.
 
 
 Let’s break this down step by step:
@@ -24,12 +25,15 @@ a) Comment Management:
     Edit a comment → PUT /comments/{id}
     Delete a comment → DELETE /comments/{id}
 
-    Fetch comments for a video → GET /comments/{video_id}
+    Fetch comments for a video → GET /comments/{video_id}?page=1
+    
 
 b) Replies Management:
 
     Add a reply to a comment → POST /comments/{id}/replies
-    Fetch replies for a comment → GET /comments/{id}/replies
+    Fetch replies for a comment → GET /comments/{id}/replies?page=1
+    Fetch Top replies for a comment → GET /comments/{id}/top-replies?page=1
+    
 
 c) Likes & Dislikes:
 
@@ -39,8 +43,8 @@ c) Likes & Dislikes:
 
 d) Ranking & Sorting:
 
-    Fetch comments for a video (Latest comments)→ GET /comments/{video_id}
-    Fetch top comments (Top comments) → GET /comments/{video_id}/top-comments
+    Fetch comments for a video (Latest comments)→ GET /comments/{video_id}?page=1
+    Fetch top comments (Top comments) → GET /comments/{video_id}/top-comments?page=1
 
 ## 2) Data Model:
 

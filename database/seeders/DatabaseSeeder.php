@@ -18,7 +18,7 @@ class DatabaseSeeder extends Seeder
     {
         User::factory(5)->create();
         Video::factory(5)->create();
-        Comment::factory(10)->create();
-        Reaction::factory(10)->create();
+        Comment::factory(1000)->create();
+        Reaction::factory(2000)->create();
     }
 }

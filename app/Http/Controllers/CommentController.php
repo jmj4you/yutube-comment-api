@@ -34,6 +34,24 @@ class CommentController extends Controller
     }
 
     /**
+     * Details of a comment.
+     *
+     * @param int $id
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+
+    public function details($id, Request $request)
+    {
+        $record = Comment::with(["createdBy", "reactionsCount"])->find($id) ?? abort(response()->json(["error" => "Comment not found"], 404));
+        try {
+            return response()->json(['message' => 'Comment details.', 'data' => $record], 200);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Failed to update comment'], 500);
+        }
+    }
+
+    /**
      * Update an existing comment.
      *
      * @param int $id
@@ -84,18 +102,29 @@ class CommentController extends Controller
         Video::find($videoId) ?? abort(response()->json(["error" => "Video not found"], 404));
 
         try {
-            $records = Comment::with(['createdBy','receiver','reactionsCount', 'replies.reactionsCount'])
+            $records = Comment::with(['createdBy', 'receiver', 'reactionsCount'])
                 ->where('video_id', $videoId)
                 ->whereNull('parent_comment_id')
                 ->latest()
-                ->get();
-            $count = $records->count();
+                ->paginate(10); // Pagination added here
+
+            $count = $records->total(); // 'total' gives total records across pages
             $message = match ($count) {
                 0 => "No comment found",
                 1 => "One comment found",
                 default => $count . " comments found",
             };
-            return response()->json(['message' => $message,'total' => $count, 'data' => $records], 200);
+
+            return response()->json([
+                'message' => $message,
+                'total' => $count,
+                'data' => $records->items(), // Paginated items for current page
+                'current_page' => $records->currentPage(),
+                'last_page' => $records->lastPage(),
+                'per_page' => $records->perPage(),
+                'next_page_url' => $records->nextPageUrl(),
+                'prev_page_url' => $records->previousPageUrl()
+            ], 200);
         } catch (\Exception $e) {
             return response()->json(['error' => 'Failed to find comments'], 500);
         }
@@ -110,23 +139,29 @@ class CommentController extends Controller
 
     public function topItems($videoId, Request $request)
     {
-        $video =Video::find($videoId) ?? abort(response()->json(["error" => "Video not found"], 404));
+        $video = Video::find($videoId) ?? abort(response()->json(["error" => "Video not found"], 404));
         try {
             $trendingComments = Comment::trendingComments($video->id);
+
             $count = $trendingComments->count();
             $message = match ($count) {
                 0 => "No comment found",
                 1 => "One comment found",
                 default => $count . " comments found",
             };
-            return response()->json(
-                [
-                    "message" => $message,
-                    "total" => $count,
-                    "data" => $trendingComments,
-                ],
-                200
-            );
+
+            return response()->json([
+                "message" => $message,
+                'data' => $trendingComments->items(), // Current page comments
+                'total' => $trendingComments->total(),
+                'current_page' => $trendingComments->currentPage(),
+                'last_page' => $trendingComments->lastPage(),
+                'per_page' => $trendingComments->perPage(),
+                'next_page_url' => $trendingComments->nextPageUrl(),
+                'prev_page_url' => $trendingComments->previousPageUrl()
+            ]);
+
+
         } catch (\Exception $e) {
             return response()->json(
                 ["error" => "Failed to find comments"],

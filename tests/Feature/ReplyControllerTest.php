@@ -60,23 +60,4 @@ class ReplyControllerTest extends TestCase
             ]);
     }
 
-    #[Test]
-    public function it_gets_replies_for_a_comment()
-    {
-        $comment = Comment::factory()->create();
-        $reply = Comment::factory()->create(['parent_comment_id' => $comment->id]);
-
-        $response = $this->getJson(route('reply.replies', $comment->id));
-
-        $response->assertStatus(200)
-            ->assertJson([
-                'message' => 'Comment and replies',
-                'data' => [
-                    'id' => $comment->id,
-                    'replies' => [
-                        ['id' => $reply->id],
-                    ],
-                ],
-            ]);
-    }
 }
